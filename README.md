@@ -16,6 +16,9 @@ Each column corresponds to a gene (node in the network) and each row is a time p
 A file that contains a trajectory will start with the line >trajectory , and a file that contains a steady state will start with the line >steady state .  The columns in the data file must correspond to the genes that are listed in the first line of the network file.
 The network file contains all the edges that will be considered in the reconstruction, in the format: regulator   target.  Each regulator-target pair are given in a separate line.  The first line contains a list of all the genes.  It is recommended to keep the number of possible regulators of each gene as small as possible, so if a gene with completely unknown regulation is modeled, it is recommended to prioritize potential regulators first and then choose only the top ones for the network file.
 
+To run the example provided with this repository, run:
+python main.py data experiment network.txt
+
 for questions:  gkarleba@fitchburgstate.edu
 
 
