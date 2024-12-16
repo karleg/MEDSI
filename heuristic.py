@@ -107,9 +107,9 @@ def resolve_trj_disc_recursive(trj_values, edges):
             for target_num in edges.keys():
                 regulator_values = tuple(trj[trj_itr][i] for i in edges[target_num])
                 if (target_num, regulator_values) in cur_logic.keys():
-                    trj[trj_itr + 1] = cur_logic[(target_num, regulator_values)]
+                    trj[trj_itr + 1][target_num] = cur_logic[(target_num, regulator_values)]
                 else:
-                    cur_logic[(target_num, regulator_values)] = trj[trj_itr + 1]
+                    cur_logic[(target_num, regulator_values)] = trj[trj_itr + 1][target_num]
         return trj_values
 
     cluster = cluster_trj(trj_values,len(trj_values),len(trj_values[0]),len(trj_values[0][0]))
@@ -194,9 +194,9 @@ def resolve_trj_discrepancies(trj_values,edges,cur_logic=None):
                 for target_num in edges.keys():
                     regulator_values=tuple(trj[trj_itr][i] for i in edges[target_num])
                     if (target_num,regulator_values) in cur_logic.keys():
-                        trj[trj_itr+1]=cur_logic[(target_num,regulator_values)]
+                        trj[trj_itr+1][target_num]=cur_logic[(target_num,regulator_values)]
                     else:
-                        cur_logic[(target_num,regulator_values)]=trj[trj_itr+1]
+                        cur_logic[(target_num,regulator_values)]=trj[trj_itr+1][target_num]
         return
 
     resolve_trj_disc_recursive(trj_values, edges)
