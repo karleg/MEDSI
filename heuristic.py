@@ -41,10 +41,9 @@ def are_ss_discrepant(steady_states,edges):  #reg_nums may be an empty list, mea
 
     return not finished
 
-def add_ss_to_dict(steady_states,edges,logic=None):
-    res={}
-    if not logic is None:
-        res = logic
+def add_ss_to_dict(steady_states,edges,res=None):
+    if res is None:
+        res = {}
     for s in steady_states:
         for target_num in edges.keys():
             reg_nums = edges[target_num]
@@ -52,10 +51,9 @@ def add_ss_to_dict(steady_states,edges,logic=None):
             res[k] = s[target_num]
     return res
 
-def add_trjs_to_dict(trajectories,edges,logic=None):
-   res={}
-   if not logic is None:
-       res=logic
+def add_trjs_to_dict(trajectories,edges,res=None):
+   if res is None:
+       res= {}
    for trj in trajectories:
        for state_itr in range(len(trj) - 1):
            for target_num in edges.keys():
@@ -78,6 +76,7 @@ def is_ss_discrepant(s,edges,logic):  #reg_nums may be an empty list, meaning th
 #within a trajectory
 def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meaning the target has no regulators
 
+        own_logic={}
         for state_itr in range(len(trj) - 1):
             for target_num in edges.keys():
                 reg_nums = edges[target_num]
@@ -85,6 +84,12 @@ def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meanin
                 if k in logic.keys():
                     if logic[k] != trj[state_itr + 1][target_num]:
                           return True
+                if k in own_logic.keys():
+                    if own_logic[k] != trj[state_itr + 1][target_num]:
+                          return True
+                else:
+                    own_logic[k]=trj[state_itr + 1][target_num]
+
         return False
 
 
