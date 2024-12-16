@@ -76,7 +76,7 @@ def is_ss_discrepant(s,edges,logic):  #reg_nums may be an empty list, meaning th
 #within a trajectory
 def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meaning the target has no regulators
 
-        own_logic={}
+        own_logic=dict()
         for state_itr in range(len(trj) - 1):
             for target_num in edges.keys():
                 reg_nums = edges[target_num]
@@ -84,7 +84,7 @@ def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meanin
                 if k in logic.keys():
                     if logic[k] != trj[state_itr + 1][target_num]:
                           return True
-                if k in own_logic.keys():
+                elif k in own_logic.keys():
                     if own_logic[k] != trj[state_itr + 1][target_num]:
                           return True
                 else:
