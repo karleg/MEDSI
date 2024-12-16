@@ -2,28 +2,6 @@ from sklearn.cluster import BisectingKMeans
 import numpy as np
 from scipy.spatial.distance import hamming
 
-
-
-def are_ss_discrepant(steady_states,edges):  #reg_nums may be an empty list, meaning the target has no regulators
-    finished=True
-    tmp_logic=dict()
-    for s in steady_states:
-         for target_num in edges.keys():
-             reg_nums=edges[target_num]
-             k=(target_num,(s[i] for i in reg_nums))
-             if k in tmp_logic.keys():
-                 if tmp_logic[k]!=s[target_num]:
-                     finished=False
-                     break
-             else:
-                 tmp_logic[k]=s[target_num]
-         if not finished:
-            break
-
-    return not finished
-
-#discrepancies between two different trajectories, if run with the same trajectory as both trj1 and trj2 looks for discrepancies
-#within a trajectory
 def are_trjs_discrepant(trajectories, edges):  #reg_nums may be an empty list, meaning the target has no regulators
     finished=True
     tmp_logic={}
@@ -44,6 +22,70 @@ def are_trjs_discrepant(trajectories, edges):  #reg_nums may be an empty list, m
             break
 
     return not finished
+
+def are_ss_discrepant(steady_states,edges):  #reg_nums may be an empty list, meaning the target has no regulators
+    finished=True
+    tmp_logic=dict()
+    for s in steady_states:
+         for target_num in edges.keys():
+             reg_nums=edges[target_num]
+             k=(target_num,(s[i] for i in reg_nums))
+             if k in tmp_logic.keys():
+                 if tmp_logic[k]!=s[target_num]:
+                     finished=False
+                     break
+             else:
+                 tmp_logic[k]=s[target_num]
+         if not finished:
+            break
+
+    return not finished
+
+def add_ss_to_dict(steady_states,edges,logic=None):
+    res={}
+    if not logic is None:
+        res = logic
+    for s in steady_states:
+        for target_num in edges.keys():
+            reg_nums = edges[target_num]
+            k = (target_num, (s[i] for i in reg_nums))
+            res[k] = s[target_num]
+    return res
+
+def add_trjs_to_dict(trajectories,edges,logic=None):
+   res={}
+   if not logic is None:
+       res=logic
+   for trj in trajectories:
+       for state_itr in range(len(trj) - 1):
+           for target_num in edges.keys():
+               reg_nums = edges[target_num]
+               k = (target_num, (trj[state_itr][i] for i in reg_nums))
+               res[k]=trj[state_itr + 1][target_num]
+   return res
+
+def is_ss_discrepant(s,edges,logic):  #reg_nums may be an empty list, meaning the target has no regulators
+
+        for target_num in edges.keys():
+            reg_nums=edges[target_num]
+            k=(target_num,(s[i] for i in reg_nums))
+            if k in logic.keys():
+                 if logic[k]!=s[target_num]:
+                        return True
+        return False
+
+#discrepancies between two different trajectories, if run with the same trajectory as both trj1 and trj2 looks for discrepancies
+#within a trajectory
+def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meaning the target has no regulators
+
+        for state_itr in range(len(trj) - 1):
+            for target_num in edges.keys():
+                reg_nums = edges[target_num]
+                k=(target_num, (trj[state_itr][i] for i in reg_nums))
+                if k in logic.keys():
+                    if logic[k] != trj[state_itr + 1][target_num]:
+                          return True
+        return False
 
 
 def cluster_trj(values,num_trj,trj_len,num_genes):  #return either a 2D or a 3D array of binary cluster centers, depending on the input
@@ -74,6 +116,7 @@ def resolve_trj_disc_recursive(trj_values, edges):
     cluster = cluster_trj(trj_values,len(trj_values),len(trj_values[0]),len(trj_values[0][0]))
 
     resolve_trj_disc_recursive(cluster, edges)
+    logic = add_trjs_to_dict(cluster, edges)
 
     for trj in trj_values:
         c_idx=0
@@ -84,14 +127,16 @@ def resolve_trj_disc_recursive(trj_values, edges):
                 min_dist = new_dist
                 c_idx = i
         not_discrepant=False
+
         for i in range(len(trj)-1):
             for j in range(len(trj[0])):
-                    disc=are_trjs_discrepant([trj, cluster], edges)
+                    disc=is_trj_discrepant(trj, edges,logic)
                     if trj[i][j]!=cluster[c_idx][i][j] and disc:
                             trj[i][j] = cluster[c_idx][i][j]
                     elif not disc:
                         not_discrepant=True
                         cluster.append(trj)
+                        logic = add_trjs_to_dict(trj, edges, logic)
                         break
             if not_discrepant:
                 break
@@ -104,6 +149,7 @@ def resolve_ss_disc_recursive(ss_values,edges):
     cluster=cluster_ss(ss_values)
 
     resolve_ss_disc_recursive(cluster,edges)
+    logic = add_ss_to_dict(cluster, edges)
 
     for s in ss_values:
         c_idx=0
@@ -114,11 +160,12 @@ def resolve_ss_disc_recursive(ss_values,edges):
                 min_dist=new_dist
                 c_idx=i
         for i in range(len(s)):
-            disc=are_ss_discrepant([s,cluster],edges)
+            disc=is_ss_discrepant(s,edges,logic)
             if s[i]!=cluster[c_idx][i] and disc:
                 s[i]=cluster[c_idx][i]
             elif not disc:
                 cluster.append(s)
+                logic=add_ss_to_dict(s,edges,logic)
                 break
 
 
