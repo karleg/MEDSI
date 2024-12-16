@@ -88,11 +88,11 @@ def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meanin
 
 
 def cluster_trj(values,num_trj,trj_len,num_genes):  #return either a 2D or a 3D array of binary cluster centers, depending on the input
-    bisect_means = BisectingKMeans(n_clusters=len(values)//2, random_state=0).fit(np.array(values).reshape(num_trj,trj_len*num_genes))
+    bisect_means = BisectingKMeans(n_clusters=max([len(values)//4,1]), random_state=0).fit(np.array(values).reshape(num_trj,trj_len*num_genes))
     return [np.round(x).reshape(trj_len,num_genes).tolist() for x in bisect_means.cluster_centers_]
 
 def cluster_ss(values):  #return either a 2D or a 3D array of binary cluster centers, depending on the input
-    bisect_means = BisectingKMeans(n_clusters=len(values)//2, random_state=0).fit(values)
+    bisect_means = BisectingKMeans(n_clusters=max([len(values)//4,1]), random_state=0).fit(values)
     return [[np.round(x).tolist() for x in y] for y in bisect_means.cluster_centers_]
 
 def resolve_trj_disc_recursive(trj_values, edges):
