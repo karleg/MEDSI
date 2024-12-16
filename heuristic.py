@@ -99,7 +99,7 @@ def cluster_ss(values):  #return either a 2D or a 3D array of binary cluster cen
 def resolve_trj_disc_recursive(trj_values, edges):
 
     if not are_trjs_discrepant(trj_values,edges):
-        return
+        return trj_values
 
     if len(trj_values)==1:
         cur_logic=dict()
@@ -144,7 +144,7 @@ def resolve_trj_disc_recursive(trj_values, edges):
 def resolve_ss_disc_recursive(ss_values,edges):
 
     if not are_ss_discrepant(ss_values,edges):
-        return
+        return ss_values
 
     cluster=cluster_ss(ss_values)
 
