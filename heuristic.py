@@ -9,7 +9,7 @@ def are_trjs_discrepant(trajectories, edges):  #reg_nums may be an empty list, m
         for state_itr in range(len(trj) - 1):
             for target_num in edges.keys():
                 reg_nums = edges[target_num]
-                k=(target_num, (trj[state_itr][i] for i in reg_nums))
+                k=(target_num, tuple(trj[state_itr][i] for i in reg_nums))
                 if k in tmp_logic.keys():
                     if tmp_logic[k] != trj[state_itr + 1][target_num]:
                         finished = False
@@ -29,7 +29,7 @@ def are_ss_discrepant(steady_states,edges):  #reg_nums may be an empty list, mea
     for s in steady_states:
          for target_num in edges.keys():
              reg_nums=edges[target_num]
-             k=(target_num,(s[i] for i in reg_nums))
+             k=(target_num,tuple(s[i] for i in reg_nums))
              if k in tmp_logic.keys():
                  if tmp_logic[k]!=s[target_num]:
                      finished=False
@@ -41,32 +41,26 @@ def are_ss_discrepant(steady_states,edges):  #reg_nums may be an empty list, mea
 
     return not finished
 
-def add_ss_to_dict(steady_states,edges,res=None):
-    if res is None:
-        res = {}
+def add_ss_to_dict(steady_states,edges,res):
     for s in steady_states:
         for target_num in edges.keys():
             reg_nums = edges[target_num]
-            k = (target_num, (s[i] for i in reg_nums))
+            k = (target_num, tuple(s[i] for i in reg_nums))
             res[k] = s[target_num]
-    return res
 
-def add_trjs_to_dict(trajectories,edges,res=None):
-   if res is None:
-       res= {}
+def add_trjs_to_dict(trajectories,edges,res):
    for trj in trajectories:
        for state_itr in range(len(trj) - 1):
            for target_num in edges.keys():
                reg_nums = edges[target_num]
-               k = (target_num, (trj[state_itr][i] for i in reg_nums))
+               k = (target_num, tuple(trj[state_itr][i] for i in reg_nums))
                res[k]=trj[state_itr + 1][target_num]
-   return res
 
 def is_ss_discrepant(s,edges,logic):  #reg_nums may be an empty list, meaning the target has no regulators
 
         for target_num in edges.keys():
             reg_nums=edges[target_num]
-            k=(target_num,(s[i] for i in reg_nums))
+            k=(target_num,tuple(s[i] for i in reg_nums))
             if k in logic.keys():
                  if logic[k]!=s[target_num]:
                         return True
@@ -80,7 +74,7 @@ def is_trj_discrepant(trj, edges,logic):  #reg_nums may be an empty list, meanin
         for state_itr in range(len(trj) - 1):
             for target_num in edges.keys():
                 reg_nums = edges[target_num]
-                k=(target_num, (trj[state_itr][i] for i in reg_nums))
+                k=(target_num, tuple(trj[state_itr][i] for i in reg_nums))
                 if k in logic.keys():
                     if logic[k] != trj[state_itr + 1][target_num]:
                           return True
@@ -111,7 +105,7 @@ def resolve_trj_disc_recursive(trj_values, edges):
         trj=trj_values[0]
         for trj_itr in range(len(trj) - 1):
             for target_num in edges.keys():
-                regulator_values = (trj[trj_itr][i] for i in edges[target_num])
+                regulator_values = tuple(trj[trj_itr][i] for i in edges[target_num])
                 if (target_num, regulator_values) in cur_logic.keys():
                     trj[trj_itr + 1] = cur_logic[(target_num, regulator_values)]
                 else:
@@ -121,7 +115,8 @@ def resolve_trj_disc_recursive(trj_values, edges):
     cluster = cluster_trj(trj_values,len(trj_values),len(trj_values[0]),len(trj_values[0][0]))
 
     resolve_trj_disc_recursive(cluster, edges)
-    logic = add_trjs_to_dict(cluster, edges)
+    logic={}
+    add_trjs_to_dict(cluster, edges,logic)
 
     for trj in trj_values:
         c_idx=0
@@ -141,7 +136,7 @@ def resolve_trj_disc_recursive(trj_values, edges):
                     elif not disc:
                         not_discrepant=True
                         cluster.append(trj)
-                        logic = add_trjs_to_dict(trj, edges, logic)
+                        add_trjs_to_dict([trj], edges, logic)
                         break
             if not_discrepant:
                 break
@@ -154,7 +149,10 @@ def resolve_ss_disc_recursive(ss_values,edges):
     cluster=cluster_ss(ss_values)
 
     resolve_ss_disc_recursive(cluster,edges)
-    logic = add_ss_to_dict(cluster, edges)
+
+    logic={}
+
+    add_ss_to_dict(cluster,edges, logic)
 
     for s in ss_values:
         c_idx=0
@@ -170,7 +168,7 @@ def resolve_ss_disc_recursive(ss_values,edges):
                 s[i]=cluster[c_idx][i]
             elif not disc:
                 cluster.append(s)
-                logic=add_ss_to_dict(s,edges,logic)
+                add_ss_to_dict([s],edges,logic)
                 break
 
 
@@ -178,7 +176,7 @@ def extract_logic(ss_values,edges):
     res=dict()
     for target in edges.keys():
         for s in ss_values:
-            res[(target,(s[i] for i in edges[target]))]=s[target]
+            res[(target,tuple(s[i] for i in edges[target]))]=s[target]
 
     return res
 
@@ -194,7 +192,7 @@ def resolve_trj_discrepancies(trj_values,edges,cur_logic=None):
         for trj in trj_values:
             for trj_itr in range(len(trj)-1):
                 for target_num in edges.keys():
-                    regulator_values=(trj[trj_itr][i] for i in edges[target_num])
+                    regulator_values=tuple(trj[trj_itr][i] for i in edges[target_num])
                     if (target_num,regulator_values) in cur_logic.keys():
                         trj[trj_itr+1]=cur_logic[(target_num,regulator_values)]
                     else:
