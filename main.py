@@ -36,7 +36,7 @@ def heuristic_callback(model, where):
                 if not gene in cur_edges.keys():
                     cur_edges[gene_num]=[]
                 for nodenum,reg in enumerate(node_names):
-                    if reg in edges[gene]:
+                    if gene in edges.keys() and reg in edges[gene]:
                         hv=model.getVarByName('R_'+gene+'['+str(reg_idx)+']')
                         reg_idx+=1
                         if model.cbGetNodeRel(hv)>0.5:
