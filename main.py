@@ -136,7 +136,7 @@ if len(steady_states)>0:
                 m.addConstr(quicksum(C[j]*(w[w_dict[j]]+(1-2*w[w_dict[j]])*B[j])+(1-C[j])*(1-w[w_dict[j]]+(2*w[w_dict[j]]-1)*B[j]) for j in reg_indices) \
                     +C[target_index]*B[target_index]+(1-C[target_index])*(1-B[target_index])<=(2-Iw)*(len(w)+1)-1)
 
-                m.addConstr(quicksum(C[j]*(w[w_dict[j]]+(1-2*w[w_dict[j]])*B[j])+(1-C[j])*(1-w[w_dict[j]])+(2*w[w_dict[j]]-1)*B[j] for j in reg_indices) \
+                m.addConstr(quicksum(C[j]*(w[w_dict[j]]+(1-2*w[w_dict[j]])*B[j])+(1-C[j])*((1-w[w_dict[j]])+(2*w[w_dict[j]]-1)*B[j]) for j in reg_indices) \
                     +C[target_index]*(1-B[target_index])+(1-C[target_index])*B[target_index]<=(Iw+1)*(len(w)+1)-1)
 
             o=0
@@ -191,7 +191,7 @@ if len(trajectories)>0:
                                 + C[l+1][target_index] * B[l+1,target_index] + (1 - C[l+1][target_index]) * (1 - B[l+1,target_index]) <= (2 - Iw) * (len(w) + 1) - 1)
 
                     m.addConstr(quicksum(
-                        C[l][j] * (w[w_dict[j]] + (1 - 2 * w[w_dict[j]]) * B[l,j]) + (1 - C[l][j]) * (1 - w[w_dict[j]]) + (2 * w[w_dict[j]] - 1) * B[l,j] for j in reg_indices) \
+                        C[l][j] * (w[w_dict[j]] + (1 - 2 * w[w_dict[j]]) * B[l,j]) + (1 - C[l][j]) * ((1 - w[w_dict[j]]) + (2 * w[w_dict[j]] - 1) * B[l,j]) for j in reg_indices) \
                                 + C[l+1][target_index] * (1 - B[l+1,target_index]) + (1 - C[l+1][target_index]) * B[l+1,target_index] <= (Iw + 1) * (len(w) + 1) - 1)
 
             o = 0
@@ -283,4 +283,5 @@ for target in chosen_edges.keys():
     f.write('\n')
 
 f.close()
+
 
