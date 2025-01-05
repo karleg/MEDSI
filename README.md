@@ -19,6 +19,8 @@ The network file contains all the edges that will be considered in the reconstru
 To run the example provided with this repository, run:
 python main.py data experiment network.txt
 
+The file main_asyn.py and heuristic_async.py are the asynchronous equivalent of main.py and heuristic.py.  They are used in the following work: https://doi.org/10.31224/4269
+
 for questions:  gkarleba@fitchburgstate.edu
 
 
