@@ -23,12 +23,17 @@ def heuristic_callback(model, where):
                     ss_values[row].append((round(model.cbGetNodeRel(hv))+steady_states[row][col])%2)
                     ss_vars.append(hv)
 
+            colsums=[0 for x in range(len(node_names))]
+            numvals=0
+
             for number in range(len(trajectories)):
                 for row in range(len(trajectories[number])):
+                    numvals+=1
                     for col in range(len(trajectories[number][0])):
                          hv = model.getVarByName('TRJ_' + str(number) + '[' + str(row) + ','+str(col)+']')
                          trj_values[number][row].append((round(model.cbGetNodeRel(hv))+trajectories[number][row][col])%2)
                          trj_vars.append(hv)
+                         colsums[col]+=((round(model.cbGetNodeRel(hv))+trajectories[number][row][col])%2)
 
             for gene in node_names:   #for genes without regulators we want an empty list stored
                 reg_idx=0
@@ -41,6 +46,19 @@ def heuristic_callback(model, where):
                         reg_idx+=1
                         if model.cbGetNodeRel(hv)>0.5:
                             cur_edges[gene_num].append(nodenum)
+
+            no_reg_indices=[]
+
+            for col_itr, gene in enumerate(node_names):
+                if not gene in edges.keys():
+                    no_reg_indices.append(col_itr)
+                    colsums[col_itr] /= numvals
+                    colsums[col_itr] = round(colsums[col_itr])
+
+            for col in no_reg_indices:
+                for number in range(len(trajectories)):
+                    for row in range(len(trajectories[number])):
+                        trj_values[number][row][col] = colsums[col]
 
             if len(ss_vars)>0 and len(trj_vars)>0:
                 cur_logic=resolve_ss_discrepancies(ss_values,cur_edges,True)
@@ -283,5 +301,4 @@ for target in chosen_edges.keys():
     f.write('\n')
 
 f.close()
-
 
