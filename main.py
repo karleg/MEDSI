@@ -50,7 +50,7 @@ def heuristic_callback(model, where):
             no_reg_indices=[]
 
             for col_itr, gene in enumerate(node_names):
-                if not gene in edges.keys():
+                if not gene in cur_edges.keys():
                     no_reg_indices.append(col_itr)
                     colsums[col_itr] /= numvals
                     colsums[col_itr] = round(colsums[col_itr])
