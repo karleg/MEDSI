@@ -5,6 +5,8 @@ from gurobipy import *
 from scipy.special import comb
 from math import log2
 from heuristic import *
+from os.path import splitext
+
 
 steady_states=[]
 trajectories=[]
@@ -17,14 +19,17 @@ def heuristic_callback(model, where):
        cur_edges={}
        if where == GRB.Callback.MIPNODE:
         if model.cbGet(GRB.Callback.MIPNODE_STATUS)==GRB.OPTIMAL:
+
+            colsums = [0 for x in range(len(node_names))]
+            numvals = 0
+
             for row in range(len(steady_states)):
+                numvals+=1
                 for col in range(len(steady_states[0])):
                     hv=model.getVarByName('SS_'+str(row)+'['+str(col)+']')
                     ss_values[row].append((round(model.cbGetNodeRel(hv))+steady_states[row][col])%2)
                     ss_vars.append(hv)
-
-            colsums=[0 for x in range(len(node_names))]
-            numvals=0
+                    colsums[col] += ((round(model.cbGetNodeRel(hv)) + steady_states[row][col]) % 2)
 
             for number in range(len(trajectories)):
                 for row in range(len(trajectories[number])):
@@ -84,6 +89,7 @@ m = Model("medsi")
 
 #read the data
 data_dir=listdir(sys.argv[1])
+trj_file_names=[]
 for file in data_dir:
     if sys.argv[2] in file:
         f=open(sys.argv[1]+'/'+file,'r')
@@ -98,6 +104,7 @@ for file in data_dir:
                 if line!='\n':
                     new_traj.append([int(x) for x in line.split()])
             trajectories.append(new_traj)
+            trj_file_names.append(file)
         f.close()
 
 different_length_trajectories=len(set(len(x) for x in trajectories))>1
@@ -301,4 +308,28 @@ for target in chosen_edges.keys():
     f.write('\n')
 
 f.close()
+
+
+
+diffs=0
+total=0
+
+for l in range(len(trajectories)):
+    f = open(splitext(trj_file_names[l])[0]+'_modeled.txt', 'w')
+    for i in range(len(trajectories[l])):
+        f.write('\n')
+        for j in range(len(trajectories[l][i])):
+            f.write(str((round(m.getVarByName('TRJ_'+str(l)+'['+str(i)+','+str(j)+']').X+trajectories[l][i][j])%2))+'\t')
+            diffs+=round(m.getVarByName('TRJ_'+str(l)+'['+str(i)+','+str(j)+']').X)==1
+            total+=1
+    f.close()
+
+for l in range(len(steady_states)):
+    for i in range(len(steady_states[l])):
+        diffs += round(m.getVarByName('SS_' + str(l) + '[' + str(i) + ']').X) == 1
+        total += 1
+
+
+
+print('Percentage mismatches:',diffs/total)
 
