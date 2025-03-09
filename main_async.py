@@ -336,10 +336,10 @@ for l in range(len(trajectories)):
     f.close()
 
 
-print('Percentage mismatches:',diffs/total)
 
 for l in range(len(steady_states)):
     for i in range(len(steady_states[l])):
         diffs += round(m.getVarByName('SS_' + str(l) + '[' + str(i) + ']').X) == 1
         total += 1
 
+print('Percentage mismatches:',diffs/total)
