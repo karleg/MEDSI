@@ -65,12 +65,12 @@ def heuristic_callback(model, where):
                   for row in range(len(trajectories[number])):
                         trj_values[number][row][col] = colsums[col]
 
-            if len(ss_vars)>0 and len(trj_vars)>0:
+            if len(ss_vars)>1 and len(trj_vars)>0:
                 cur_logic=resolve_ss_discrepancies(ss_values,cur_edges,True)
                 model.cbSetSolution(ss_vars,unpack_ss(ss_values,steady_states))
                 resolve_trj_discrepancies(trj_values,cur_edges,cur_logic)
                 model.cbSetSolution(trj_vars, unpack_trj(trj_values,trajectories))
-            elif len(ss_vars)>0:
+            elif len(ss_vars)>1:
                 cur_logic = resolve_ss_discrepancies(ss_values, cur_edges)
                 model.cbSetSolution(ss_vars, unpack_ss(ss_values,steady_states))
             else:
