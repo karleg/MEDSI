@@ -297,7 +297,7 @@ for target in chosen_edges.keys():
         logic_output='I_' + target + str(w)
         next_input=[w[i] for i in w_indices]
         if not next_input in covered_inputs:
-            f.write(''.join([str(next_input[i]) for i in range(len(next_input))])+'\t'+str(int(m.getVarByName(logic_output).X))+'\n')
+            f.write(''.join([str(next_input[i]) for i in range(len(next_input))])+'\t'+str(round(float(m.getVarByName(logic_output).X)))+'\n')
             covered_inputs.append(next_input)
         o = 0
         while o < len(w) - 1 and w[o] == 1:
