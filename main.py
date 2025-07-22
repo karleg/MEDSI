@@ -271,7 +271,7 @@ m.optimize(heuristic_callback)
 chosen_edges=dict()  #like edges but only ones that were chosen
 f=open('InferenceResults.txt','w')
 for v in m.getVars():
-    if 'R_' in v.VarName and v.X==1:
+    if 'R_' in v.VarName and v.X>=0.5:
         target=v.VarName[2:].split('[')[0]
         reg_list=[x for x in node_names if x in edges[target]]
         regulator=reg_list[int(v.VarName[2:].split('[')[1].split(']')[0])]
@@ -320,13 +320,13 @@ for l in range(len(trajectories)):
         f.write('\n')
         for j in range(len(trajectories[l][i])):
             f.write(str((round(m.getVarByName('TRJ_'+str(l)+'['+str(i)+','+str(j)+']').X+trajectories[l][i][j])%2))+'\t')
-            diffs+=round(m.getVarByName('TRJ_'+str(l)+'['+str(i)+','+str(j)+']').X)==1
+            diffs+=round(m.getVarByName('TRJ_'+str(l)+'['+str(i)+','+str(j)+']').X)>=0.5
             total+=1
     f.close()
 
 for l in range(len(steady_states)):
     for i in range(len(steady_states[l])):
-        diffs += round(m.getVarByName('SS_' + str(l) + '[' + str(i) + ']').X) == 1
+        diffs += round(m.getVarByName('SS_' + str(l) + '[' + str(i) + ']').X) >=0.5
         total += 1
 
 
