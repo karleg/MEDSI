@@ -114,10 +114,15 @@ B_vars_trajectories=[]  #one 2D variable per trajectory
 
 for i,state in enumerate(steady_states):
     next_vars=m.addVars(len(state),vtype=GRB.BINARY,name='SS_'+str(i))
+    for j,var in enumerate(next_vars):
+         var.start=state[j]
     B_vars.append(next_vars)
 
 for i,trajectory in enumerate(trajectories):
     next_vars = m.addVars(len(trajectory),len(trajectory[0]), vtype=GRB.BINARY,name='TRJ_'+str(i))
+    for j,row in enumerate(trajectory):
+        for k,var in enumerate(row):
+            next_vars[j,k].start=trajectory[j][k]
     B_vars_trajectories.append(next_vars)
 
 #read nodes and edges
